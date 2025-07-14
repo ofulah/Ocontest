@@ -1,114 +1,169 @@
-import axios from 'axios';
-import { apiConfig, endpoints, getAuthHeader } from '../config/api';
+import axiosInstance from '../utils/axiosConfig';
 
-const api = axios.create(apiConfig);
-
-// Request interceptor to add auth token to requests
-api.interceptors.request.use(
-  (config) => {
-    const token = localStorage.getItem('access_token');
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-    return config;
-  },
-  (error) => Promise.reject(error)
-);
-
-// Response interceptor to handle token refresh
-api.interceptors.response.use(
-  (response) => response,
-  async (error) => {
-    const originalRequest = error.config;
-    
-    // If error is 401 and we haven't tried to refresh yet
-    if (error.response?.status === 401 && !originalRequest._retry) {
-      originalRequest._retry = true;
-      
-      try {
-        const refreshToken = localStorage.getItem('refresh_token');
-        if (!refreshToken) {
-          // No refresh token, redirect to login
-          window.location.href = '/login';
-          return Promise.reject(error);
-        }
-        
-        // Try to refresh the token
-        const response = await axios.post(
-          `${apiConfig.baseURL}${endpoints.refreshToken}`,
-          { refresh: refreshToken },
-          { ...apiConfig, skipAuthRefresh: true }
-        );
-        
-        const { access } = response.data;
-        localStorage.setItem('access_token', access);
-        
-        // Retry the original request with new token
-        originalRequest.headers.Authorization = `Bearer ${access}`;
-        return api(originalRequest);
-      } catch (error) {
-        // Refresh token failed, redirect to login
-        localStorage.removeItem('access_token');
-        localStorage.removeItem('refresh_token');
-        window.location.href = '/login';
-        return Promise.reject(error);
-      }
-    }
-    
-    return Promise.reject(error);
-  }
-);
-
-// Auth API
-export const authAPI = {
-  login: (credentials) => api.post(endpoints.login, credentials),
-  register: (userData) => api.post(endpoints.register, userData),
-  logout: () => api.post(endpoints.logout),
-  refreshToken: (refreshToken) => 
-    api.post(endpoints.refreshToken, { refresh: refreshToken }),
-};
-
-// User API
-export const userAPI = {
-  getProfile: () => api.get(endpoints.userProfile),
-  updateProfile: (userData) => api.patch(endpoints.updateProfile, userData),
-};
-
-// Contest API
-export const contestAPI = {
-  getAll: (params = {}) => api.get(endpoints.contests, { params }),
-  getById: (id) => api.get(endpoints.contestDetail(id)),
-  create: (contestData) => api.post(endpoints.contests, contestData),
-  update: (id, contestData) => api.patch(endpoints.contestDetail(id), contestData),
-  delete: (id) => api.delete(endpoints.contestDetail(id)),
-  getSubmissions: (contestId) => api.get(endpoints.contestSubmissions(contestId)),
-};
+// Use the shared axios instance from axiosConfig.js
+const api = axiosInstance;
 
 // Video API
-export const videoAPI = {
-  getAll: (params = {}) => api.get(endpoints.videos, { params }),
-  getById: (id) => api.get(endpoints.videoDetail(id)),
-  upload: (videoData, onUploadProgress) => {
-    const formData = new FormData();
-    Object.entries(videoData).forEach(([key, value]) => {
-      formData.append(key, value);
-    });
-    
-    return api.post(endpoints.uploadVideo, formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-      onUploadProgress,
-    });
+export const videoApi = {
+  // Upload a new video
+  uploadVideo: async (formData, onUploadProgress) => {
+    try {
+      const response = await api.post('/videos/upload/', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+        onUploadProgress,
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Error uploading video:', error);
+      throw error;
+    }
   },
-  update: (id, videoData) => api.patch(endpoints.videoDetail(id), videoData),
-  delete: (id) => api.delete(endpoints.videoDetail(id)),
-};
 
-// Notification API
-export const notificationAPI = {
-  getAll: () => api.get(endpoints.notifications),
-  markAsRead: (id) => api.post(endpoints.markNotificationAsRead(id)),
+  // Get all videos for the current user (both standalone and contest videos)
+  getMyVideos: async () => {
+    try {
+      // First try to get videos from the dashboard endpoint
+      const dashboardResponse = await api.get('/creator/dashboard/');
+      
+      // Extract videos from dashboard response if available
+      if (dashboardResponse?.data?.videos && Array.isArray(dashboardResponse.data.videos)) {
+        return dashboardResponse.data.videos.map(video => ({
+          ...video,
+          type: video.contest_id ? 'contest' : 'standalone'
+        }));
+      }
+      
+      // Fallback: Fetch both standalone videos and contest submissions separately
+      const [standaloneResponse, contestSubmissionsResponse] = await Promise.all([
+        api.get('/videos/videos/', {
+          params: {
+            is_standalone: 'true',
+          },
+        }),
+        api.get('/creators/submissions/')
+      ]);
+      
+      // Process standalone videos
+      const standaloneVideos = Array.isArray(standaloneResponse?.data) 
+        ? standaloneResponse.data.map(video => ({
+            ...video,
+            type: 'standalone',
+            thumbnail_url: video.thumbnail ? `http://localhost:8000${video.thumbnail}` : null
+          }))
+        : [];
+      
+      // Process contest submission videos
+      const contestSubmissions = Array.isArray(contestSubmissionsResponse?.data)
+        ? contestSubmissionsResponse.data
+        : [];
+      
+      const contestVideos = contestSubmissions
+        .filter(submission => submission) // Make sure submission exists
+        .map(submission => {
+          // Handle different data structures
+          const videoData = submission.video || submission;
+          const contestData = submission.contest || {};
+          
+          return {
+            id: videoData.id || submission.id,
+            title: videoData.title || submission.title,
+            description: videoData.description || submission.description,
+            thumbnail: videoData.thumbnail || submission.thumbnail,
+            thumbnail_url: videoData.thumbnail ? `http://localhost:8000${videoData.thumbnail}` : 
+                          submission.thumbnail ? `http://localhost:8000${submission.thumbnail}` : null,
+            views: videoData.views || videoData.view_count || submission.view_count || 0,
+            likes: videoData.likes || 0,
+            created_at: videoData.created_at || submission.created_at,
+            contestId: contestData.id || submission.contest_id,
+            contestTitle: contestData.title,
+            submissionId: submission.id,
+            submissionDate: submission.created_at || submission.submission_date,
+            type: 'contest'
+          };
+        });
+      
+      // Combine both types of videos
+      return [...standaloneVideos, ...contestVideos];
+    } catch (error) {
+      console.error('Error fetching videos:', error);
+      // Return empty arrays for both types if there's an error
+      return [];
+    }
+  },
+  
+  // Get all contests the user has participated in
+  getMyContests: async () => {
+    try {
+      // Get contests from the dashboard endpoint which we know works
+      const response = await api.get('/creator/dashboard/');
+      
+      // Extract contests from the dashboard response
+      const { 
+        active_contests = [], 
+        applied_contests = [], 
+        past_contests = [],
+        running_contests = [] // Some APIs might use this name instead
+      } = response.data || {};
+      
+      // Use running_contests if active_contests is empty
+      const activeContests = active_contests.length > 0 ? active_contests : running_contests;
+      
+      // Combine all contests and add a status field
+      const allContests = [
+        ...(activeContests || []).map(contest => ({
+          ...contest,
+          status: 'active'
+        })),
+        ...(applied_contests || []).map(contest => ({
+          ...contest,
+          status: 'applied'
+        })),
+        ...(past_contests || []).map(contest => ({
+          ...contest,
+          status: 'past'
+        }))
+      ];
+      
+      return allContests;
+    } catch (error) {
+      console.error('Error fetching contests:', error);
+      return [];
+    }
+  },
+
+  // Get a single video by ID
+  getVideoById: async (id) => {
+    try {
+      const response = await api.get(`/videos/videos/${id}/`);
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching video:', error);
+      throw error;
+    }
+  },
+
+  // Update a video
+  updateVideo: async (id, data) => {
+    try {
+      const response = await api.put(`/videos/videos/${id}/`, data);
+      return response.data;
+    } catch (error) {
+      console.error('Error updating video:', error);
+      throw error;
+    }
+  },
+
+  // Delete a video
+  deleteVideo: async (id) => {
+    try {
+      await api.delete(`/videos/videos/${id}/`);
+    } catch (error) {
+      console.error('Error deleting video:', error);
+      throw error;
+    }
+  },
 };
 
 export default api;

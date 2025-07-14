@@ -1,0 +1,23 @@
+{
+  "files": {
+    "main.css": "/static/css/main.d7583597.css",
+    "main.js": "/static/js/main.cdec8c1a.js",
+    "static/media/homepage-banner-video.mp4": "/static/media/homepage-banner-video.f86754e330308e5b2a4a.mp4",
+    "static/media/button.png": "/static/media/button.3fd1956acec23f17e5d0.png",
+    "static/media/ohh-contest.png": "/static/media/ohh-contest.b9916d3e13703518609c.png",
+    "static/media/OpenSauceOne-Light.ttf": "/static/media/OpenSauceOne-Light.81d0e49dc3186d39ab5a.ttf",
+    "static/media/BebasNeue-Regular.ttf": "/static/media/BebasNeue-Regular.12e3683f9192436a7be8.ttf",
+    "static/media/home-icon-default.png": "/static/media/home-icon-default.bd6bfe4ad0096aa6140a.png",
+    "static/media/home-icon-hovered.png": "/static/media/home-icon-hovered.a1753d6316f06a761d38.png",
+    "static/media/TANKINDRED-Display.otf": "/static/media/TANKINDRED-Display.6dad73d4def69afead28.otf",
+    "static/media/signup.jpg": "/static/media/signup.e8c57c69f15b501dbf09.jpg",
+    "static/media/login.jpg": "/static/media/login.b559ffeec88083e3faa3.jpg",
+    "index.html": "/index.html",
+    "main.d7583597.css.map": "/static/css/main.d7583597.css.map",
+    "main.cdec8c1a.js.map": "/static/js/main.cdec8c1a.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.d7583597.css",
+    "static/js/main.cdec8c1a.js"
+  ]
+}
