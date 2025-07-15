@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import '../../index.css'; // Assumes global styles
+import './navbar.css';
 
 const navItems = [
   {
@@ -30,34 +30,49 @@ const navItems = [
 ];
 
 const Navbar = () => {
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  const toggleMobileMenu = () => {
+    setIsMobileMenuOpen(!isMobileMenuOpen);
+  };
+
   return (
-    <nav className="navbar-container" style={{
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center', // Center the content horizontally
-      padding: '0.5rem 2rem',
-      background: 'transparent', // Fully transparent background
-      backdropFilter: 'blur(5px)', // Optional: adds a blur effect for better readability
-      boxShadow: '0 2px 8px rgba(0,0,0,0.05)',
-      position: 'relative',
-      zIndex: 1000,
-    }}>
-      <div className="navbar-links" style={{ display: 'flex', gap: '2rem', justifyContent: 'center' }}>
+    <nav className="navbar-container">
+      <div className="navbar-links desktop">
         {navItems.map(item => (
           <Link 
             key={item.name} 
             to={item.route} 
-            className="navbar-link" 
-            style={{ display: 'flex', alignItems: 'center' }}
+            className="navbar-link"
           >
             <img 
               src={item.img} 
               alt={item.alt} 
-              style={{ height: '129px', width: '129px', objectFit: 'contain' }} 
+              className="navbar-icon"
             />
           </Link>
         ))}
       </div>
+      <div className="navbar-hamburger" onClick={toggleMobileMenu}>
+        <div></div>
+        <div></div>
+        <div></div>
+      </div>
+
+      {isMobileMenuOpen && (
+        <div className="navbar-dropdown mobile">
+          {navItems.map(item => (
+            <Link 
+              key={item.name} 
+              to={item.route} 
+              className="navbar-link"
+              onClick={toggleMobileMenu}
+            >
+              <span>{item.name}</span>
+            </Link>
+          ))}
+        </div>
+      )}
     </nav>
   );
 };
