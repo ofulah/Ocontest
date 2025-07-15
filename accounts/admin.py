@@ -228,7 +228,8 @@ class BrandAdmin(UserAdmin):
         super().save_model(request, obj, form, change)
 
 @admin.register(Creator)
-class CreatorAdmin(admin.ModelAdmin):
+class CreatorAdmin(UserAdmin):
+    add_form = UserCreationForm
     filter_horizontal = ('groups', 'user_permissions')
     filter_input_length = 20
     inlines = [CreatorProfileInline]
@@ -243,13 +244,16 @@ class CreatorAdmin(admin.ModelAdmin):
         
     def get_fieldsets(self, request, obj=None):
         if not obj:
-            return (
+            return [
                 (None, {
                     'classes': ('wide',),
-                    'fields': ('email', 'first_name', 'last_name', 'password1', 'password2')
+                    'fields': ('email', 'password1', 'password2')
                 }),
-            )
-        return (
+                ('Personal Info', {
+                    'fields': ('first_name', 'last_name', 'gender', 'phone_number')
+                })
+            ]
+        return [
             (None, {
                 'fields': ('email', 'password')
             }),
@@ -267,7 +271,7 @@ class CreatorAdmin(admin.ModelAdmin):
                 'fields': ('last_login', 'date_joined'),
                 'classes': ('collapse',)
             })
-        )
+        ]
     list_display = [
         'email',
         'get_full_name',
