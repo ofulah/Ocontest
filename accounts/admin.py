@@ -44,8 +44,7 @@ class CreatorProfileInline(StackedInline):
             'fields': [
                 'facebook_url',
                 'instagram_url',
-                'twitter_url',
-                # Removed TikTok and YouTube URLs as per request
+                'twitter_url',                
             ],
             'classes': ('collapse', 'wide'),
         }),
@@ -244,31 +243,31 @@ class CreatorAdmin(admin.ModelAdmin):
         
     def get_fieldsets(self, request, obj=None):
         if not obj:
-            return [
+            return (
                 (None, {
-                    'classes': ['wide'],
-                    'fields': ['email', 'first_name', 'last_name', 'password1', 'password2']
+                    'classes': ('wide',),
+                    'fields': ('email', 'first_name', 'last_name', 'password1', 'password2')
                 }),
-            ]
-        return [
+            )
+        return (
             (None, {
-                'fields': ['email', 'password']
+                'fields': ('email', 'password')
             }),
             ('Personal Info', {
-                'fields': [
+                'fields': (
                     ('first_name', 'last_name'),
                     'gender',
                     'phone_number'
-                ]
+                )
             }),
             ('Status', {
-                'fields': ['is_verified', 'is_active']
+                'fields': ('is_verified', 'is_active')
             }),
             ('Important dates', {
-                'fields': ['last_login', 'date_joined'],
-                'classes': ['collapse']
+                'fields': ('last_login', 'date_joined'),
+                'classes': ('collapse',)
             })
-        ]
+        )
     list_display = [
         'email',
         'get_full_name',
@@ -342,7 +341,12 @@ class BrandProfileChoiceField(forms.ModelChoiceField):
 
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
-    list_display = ['name', 'sku', 'get_brand_name', 'contest_link', 'price', 'stock_quantity', 'status', 'created_at']
+    # Display product ID explicitly
+    def product_id(self, obj):
+        return obj.id
+    product_id.short_description = 'ID'
+    product_id.admin_order_field = 'id'
+    list_display = ['product_id', 'name', 'sku', 'get_brand_name', 'contest_link', 'price', 'stock_quantity', 'status', 'created_at']
     list_filter = ['status', 'contest__title', 'brand__company_name', 'created_at']
     search_fields = [
         'name', 
@@ -433,7 +437,7 @@ class CustomUserAdmin(UserAdmin):
     def get_fieldsets(self, request, obj=None):
         if not obj:
             return self.add_fieldsets
-            
+
         if obj.role == 'creator':
             try:
                 creator_profile = obj.creator_profile
@@ -453,25 +457,26 @@ class CustomUserAdmin(UserAdmin):
                 ]
             except CreatorProfile.DoesNotExist:
                 pass
-                
-        fieldsets = [
+
+        # For all other roles (including admin, brand etc.)
+        return  (
             (None, {
-                'fields': ['email', 'password']
+                'fields': ('email', 'password')
             }),
             ('Personal Info', {
-                'fields': [
+                'fields': (
                     ('first_name', 'last_name'),
                     'gender',
                     'phone_number'
-                ]
+                )
             }),
             ('Permissions', {
-                'fields': ['role', 'is_verified', 'is_active', 'is_staff', 'is_superuser', 'groups', 'user_permissions']
+                'fields': ('role', 'is_verified', 'is_active', 'is_staff', 'is_superuser', 'groups', 'user_permissions')
             }),
             ('Important dates', {
-                'fields': ['last_login', 'date_joined']
+                'fields': ('last_login', 'date_joined')
             })
-        ]
+        )
     
     def profile_preview(self, obj):
         try:
