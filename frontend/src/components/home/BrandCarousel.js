@@ -29,7 +29,7 @@ const BrandCarouselContainer = styled(Box)({
 const Track = styled(Box)({
   display: 'flex',
   gap: '4rem',
-  padding: '1rem 0',
+  padding: '0rem 0',
   animation: 'scroll 30s linear infinite',
   '&:hover': {
     animationPlayState: 'paused',
@@ -57,10 +57,18 @@ const BrandLogo = styled('img')({
     transform: 'scale(1.1)',
   },
   '@media (max-width: 768px)': {
-    height: '40px',
+    height: '80px',
+    opacity: 0.9, // Slightly more visible on mobile
+  },
+  // Disable hover effects on touch devices
+  '@media (hover: none)': {
+    '&:hover': {
+      filter: 'grayscale(100%) brightness(2)',
+      opacity: 0.9,
+      transform: 'none',
+    },
   },
 });
-
 const BrandCarousel = () => {
   const trackRef = useRef(null);
   const brandLogos = [
@@ -96,3 +104,4 @@ const BrandCarousel = () => {
 };
 
 export default BrandCarousel;
+
