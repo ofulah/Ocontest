@@ -1,14 +1,8 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import '../../index.css'; // Assumes global styles
+import './navbar.css';
 
 const navItems = [
-  {
-    name: 'Home',
-    route: '/',
-    img: '/images/homepage-images/navbar icons/home-button.png',
-    alt: 'Home',
-  },
   {
     name: 'Hbada',
     route: '/hbada-synergy',
@@ -16,10 +10,27 @@ const navItems = [
     alt: 'Hbada',
   },
   {
+    name: 'Home',
+    route: '/',
+    img: '/images/homepage-images/navbar icons/home-button.png',
+    alt: 'Home',
+    className: "home"
+  },
+  {
+    name: 'Icon',
+    route: '/',
+    img: '/images/homepage-images/ohph-contest.png',
+    alt: 'Community Icon',
+    className: 'white-icon',
+    hideInDesktop: true,
+    hideInMobile: true 
+  },
+  {
     name: 'Login',
     route: '/login',
     img: '/images/homepage-images/navbar icons/login-button.png',
     alt: 'Login',
+    className: "login"
   },
   {
     name: 'Signup',
@@ -30,36 +41,64 @@ const navItems = [
 ];
 
 const Navbar = () => {
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  const toggleMobileMenu = () => {
+    setIsMobileMenuOpen(!isMobileMenuOpen);
+  };
+
   return (
-    <nav className="navbar-container" style={{
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center', // Center the content horizontally
-      padding: '0.5rem 2rem',
-      background: 'transparent', // Fully transparent background
-      backdropFilter: 'blur(5px)', // Optional: adds a blur effect for better readability
-      boxShadow: '0 2px 8px rgba(0,0,0,0.05)',
-      position: 'relative',
-      zIndex: 1000,
-    }}>
-      <div className="navbar-links" style={{ display: 'flex', gap: '2rem', justifyContent: 'center' }}>
-        {navItems.map(item => (
-          <Link 
-            key={item.name} 
-            to={item.route} 
-            className="navbar-link" 
-            style={{ display: 'flex', alignItems: 'center' }}
-          >
-            <img 
-              src={item.img} 
-              alt={item.alt} 
-              style={{ height: '129px', width: '129px', objectFit: 'contain' }} 
-            />
-          </Link>
+    <nav className="navbar-container">
+      {/* Hamburger menu - appears first on mobile */}
+      <div className="navbar-hamburger" onClick={toggleMobileMenu}>
+        <div></div>
+        <div></div>
+        <div></div>        
+      </div>
+
+      {/* Desktop navigation links - filtered to exclude items with hideInDesktop */}
+      <div className="navbar-links desktop">
+        {navItems
+          .filter(item => !item.hideInDesktop)
+          .map(item => (
+            <Link key={item.name} to={item.route} className="navbar-link">
+              <img src={item.img} alt={item.alt} className={`navbar-icon ${item.className || ''}`} />
+            </Link>
         ))}
       </div>
+
+      {/* Company logo - appears on both but positioned differently */}
+      <Link to="/" className="company-icon-link">
+        <img
+          src="/images/homepage-images/ohph-contest.png" 
+          alt="Company Logo"
+          className="company-icon"
+          onError={(e) => { e.target.onerror = null; e.target.src = `https://placehold.co/40x40/333333/FFFFFF?text=Logo`; }}
+        />
+      </Link>
+
+      {/*show all items and exclude the icon*/}
+      {isMobileMenuOpen && (
+  <div className="navbar-dropdown mobile">
+    {navItems
+      .filter(item => !item.hideInMobile)
+      .map(item => (
+        <Link 
+          key={item.name} 
+          to={item.route} 
+          className="navbar-link"
+          onClick={toggleMobileMenu}
+        >
+          <span>{item.name}</span>
+        </Link>
+    ))}
+  </div>
+)}
+
     </nav>
   );
 };
 
 export default Navbar;
+
+//import companyIcon from "../../../public/images/homepage-images/ohph-contest.png"; // C:\Users\Mark\OneDrive\Documents\nodejs\kazi\public\images\homepage-images\ohph-contest.png
