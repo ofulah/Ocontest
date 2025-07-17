@@ -1,0 +1,21 @@
+@import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;700&display=swap');
+
+/* Your other CSS rules will go below this */
+.fontSansRegular {
+    font-family: "Open Sans";
+    font-weight: 400;
+}
+
+.fontSansBold {
+    font-family: "Open Sans";
+    font-weight: 700;
+    color: rgba(222, 205, 147, 1) !important;
+}
+.carosel{
+    max-width: 100%; /* Ensures it doesn't overflow its parent */
+    height: auto; /* Maintain aspect ratio */
+    min-height: 500px !important; /* Limit the maximum height on smaller screens */
+    /* You can adjust the max-height value based on what "reasonable" means for your design */
+    margin-left: auto; /* Center the carousel if it's smaller than its parent */
+    margin-right: auto;
+}
