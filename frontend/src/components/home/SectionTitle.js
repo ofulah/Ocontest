@@ -15,5 +15,3 @@ const SectionTitle = ({ title, subtitle, align = 'center' }) => {
 };
 
 export default SectionTitle;
-
-export default SectionTitle;
