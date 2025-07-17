@@ -11,12 +11,22 @@ const Layout = ({ children }) => {
   return (
     <Box sx={{ 
       minHeight: '100vh',
+      minHeight: 'calc(100 * var(--vh, 1vh))',
       display: 'flex',
       flexDirection: 'column',
-      bgcolor: 'black'
+      bgcolor: 'black',
+      position: 'relative', 
+      overflowX: 'hidden' 
     }}>
       {!hideChrome && <Navbar />}
-      <Box component="main" sx={{ flexGrow: 1 }}>
+      <Box 
+        component="main" 
+        sx={{ 
+          flexGrow: 1,
+          position: 'relative',
+          overflow: 'visible' 
+        }}
+      >
         {children}
       </Box>
       {!hideChrome && <Footer />}
@@ -25,3 +35,4 @@ const Layout = ({ children }) => {
 };
 
 export default Layout;
+
