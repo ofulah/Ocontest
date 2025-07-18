@@ -113,47 +113,75 @@ const ReasonContent = styled(Paper)(({ theme }) => ({
   },
 }));
 
-const CommunityMemberCard = ({ name, image, memberImage, contestName, reason, isOpen, onToggle }) => {
+const CommunityMemberCard = ({   name, 
+  image, 
+  memberImage, 
+  contestName, 
+  reason, 
+  isOpen, 
+  onToggle, 
+  instagram, 
+  youtube 
+ }) => {
 
   return (
-    <MemberCard>
-      <ProfileSection>
-        <ProfileImage 
-          src={image} 
-          alt={name}
-        />
-        <NameText>{name}</NameText>
-        <SocialLinks>
-          <Instagram />
-          <YouTube />
-        </SocialLinks>
-      </ProfileSection>
-      
-      <MemberImage 
+  <MemberCard>
+    <ProfileSection>
+      <ProfileImage 
         src={memberImage} 
-        alt={`${name}'s work`}
+        alt={name}
       />
-      <Typography variant="body1" sx={{ color: 'white', mt: 1 }}>
-        Contest: {contestName}
-      </Typography>
-      
-      {reason && (
-        <Box sx={{ mt: 1 }}>
-          <ReasonButton 
-            onClick={onToggle}
-            endIcon={isOpen ? <ExpandLess /> : <ExpandMore />}
-          >
-            Reason for Application
-          </ReasonButton>
-          <Collapse in={isOpen}>
-            <ReasonContent elevation={0}>
-              {reason}
-            </ReasonContent>
-          </Collapse>
-        </Box>
-      )}
-    </MemberCard>
-  );
+      <NameText>{name}</NameText>
+      <SocialLinks>
+  {instagram && (
+    <a 
+      href={`https://instagram.com/${instagram}`} 
+      target="_blank" 
+      rel="noopener noreferrer"
+    >
+      <Instagram />
+    </a>
+  )}
+  {youtube && (
+    <a 
+      href={youtube} 
+      target="_blank" 
+      rel="noopener noreferrer"
+    >
+      <YouTube />
+    </a>
+  )}
+</SocialLinks>
+
+    </ProfileSection>
+
+    <MemberImage 
+      src={name} 
+      alt={`${name}'s work`}
+    />
+    <Typography variant="body1" sx={{ color: 'white', mt: 1 }}>
+      Contest: {contestName}
+    </Typography>
+
+    {reason && (
+      <Box sx={{ mt: 1 }}>
+        <ReasonButton 
+          onClick={onToggle}
+          endIcon={isOpen ? <ExpandLess /> : <ExpandMore />}
+        >
+          Reason for Application
+        </ReasonButton>
+        <Collapse in={isOpen}>
+          <ReasonContent elevation={0}>
+            {reason}
+          </ReasonContent>
+        </Collapse>
+      </Box>
+    )}
+  </MemberCard>
+);
+
 };
 
 export default CommunityMemberCard;
+
