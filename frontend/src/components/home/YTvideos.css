@@ -8,15 +8,14 @@ body {
 }
 
 .app-container {
-    min-height: 100vh;
-    background-color: #000; /* Black background */
-    color: #fff; /* White text */
-    padding: 1rem; /* p-4 */
+    background-color: #000;
+    color: #fff;
+    padding: 1rem;
     display: flex;
     flex-direction: column;
     align-items: center;
     font-family: 'Inter', sans-serif;
-    margin-top: 500;
+    margin-top: 0; /* was 500 with no unit */
 }
 
 .main-title {
@@ -107,11 +106,12 @@ body {
     position: fixed;
     inset: 0;
     z-index: 50;
+    z-index: 9999; /* Ensures it's above all other content, including the navbar */
     display: flex;
     align-items: center;
     justify-content: center;
-    background-color: rgba(0, 0, 0, 0.8); /* bg-black bg-opacity-80 */
-    backdrop-filter: blur(8px); /* backdrop-filter backdrop-blur-md */
+    background-color: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(8px);
 }
 
 .video-player-container {
@@ -188,3 +188,83 @@ body {
     font-weight: 700;
     color: rgba(222, 205, 147, 1) !important;
 }
+
+.carousel-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  overflow: hidden;
+  margin: 2rem 0;
+}
+
+.carousel {
+  display: flex;
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  gap: 1rem;
+  padding: 1rem;
+  scrollbar-width: none; /* Firefox */
+}
+
+.carousel::-webkit-scrollbar {
+  display: none; /* Chrome/Safari */
+}
+
+.thumbnail-card {
+  min-width: 280px;
+  max-width: 300px;
+  flex: 0 0 auto;
+  cursor: pointer;
+  background: #111;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(255, 255, 255, 0.05);
+}
+
+.thumbnail-wrapper {
+  position: relative;
+}
+
+.thumbnail-image {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.play-icon-overlay {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+
+.thumbnail-title {
+  padding: 0.5rem;
+  color: white;
+}
+
+.thumbnail-description {
+  font-size: 0.9rem;
+  color: #ccc;
+}
+
+.scroll-button {
+  background: rgba(0, 0, 0, 0.6);
+  color: white;
+  border: none;
+  font-size: 2rem;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  z-index: 10;
+}
+
+.scroll-button.left {
+  margin-right: 0.5rem;
+}
+
+.scroll-button.right {
+  margin-left: 0.5rem;
+}
+
