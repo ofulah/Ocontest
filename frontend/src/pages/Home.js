@@ -167,7 +167,7 @@ const Home = () => {
 
       {/* Disclaimer Strip */}
       <Box sx={{
-        backgroundColor: '#000000ff !important',
+        backgroundColor: '#000000ff !important';
         py: 1,
         textAlign: 'center',
         mt: 6,
@@ -176,6 +176,7 @@ const Home = () => {
         position: 'relative',
         zIndex: 1
       }}>
+
         <Typography
           variant="body1"
           color="white"
