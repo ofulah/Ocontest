@@ -5,17 +5,12 @@ import bannerVideo from '../../assets/videos/homepage-banner-video.mp4';
 const VideoBanner = () => {
   return (
     <Box sx={{ 
-      position: 'relative', 
-      height: '100vh', // Full viewport height
-      width: '100%', // Full width
-      mx: 0, // No horizontal margin
-      left: 0,
-      transform: 'none', // No transform needed
+      position: 'relative',
+      width: '100%',
+      paddingTop: '56.25%', 
       overflow: 'hidden',
-      my: 0, // No vertical margin
-      display: 'flex',
-      justifyContent: 'center',
-      alignItems: 'center'
+      mx: 0,
+      my: 0
     }}>
       {/* Background video */}
       <video
@@ -26,14 +21,16 @@ const VideoBanner = () => {
         playsInline
         style={{
           position: 'absolute',
-          top: 0,
-          left: 0,
-          width: '100%',
-          height: '100%',
-          objectFit: 'cover',
+          top: '50%',
+          left: '50%',
+          transform: 'translate(-50%, -50%)',
+          minWidth: '100%',
+          minHeight: '100%',
+          width: 'auto',
+          height: 'auto',
+          objectFit: 'cover', 
         }}
       />
-      {/* Dark overlay + content */}
       <Box
         sx={{
           position: 'absolute',
@@ -57,3 +54,4 @@ const VideoBanner = () => {
 };
 
 export default VideoBanner;
+
