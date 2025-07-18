@@ -4,16 +4,16 @@ import './navbar.css';
 
 const navItems = [
   {
-    name: 'Hbada',
-    route: '/hbada-synergy',
-    img: '/images/homepage-images/navbar icons/hbada-button.png',
-    alt: 'Hbada',
-  },
-  {
     name: 'Home',
     route: '/',
     img: '/images/homepage-images/navbar icons/home-button.png',
     alt: 'Home',
+  },
+  {
+    name: 'Hbada',
+    route: '/hbada-synergy',
+    img: '/images/homepage-images/navbar icons/hbada-button.png',
+    alt: 'Hbada',
     className: "home"
   },
   {
@@ -101,4 +101,3 @@ const Navbar = () => {
 
 export default Navbar;
 
-//import companyIcon from "../../../public/images/homepage-images/ohph-contest.png"; // C:\Users\Mark\OneDrive\Documents\nodejs\kazi\public\images\homepage-images\ohph-contest.png
