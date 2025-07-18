@@ -19,3 +19,18 @@
     margin-left: auto; /* Center the carousel if it's smaller than its parent */
     margin-right: auto;
 }
+
+.image-text-section {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  min-height: 500px;
+}
+
+.image-container, .text-container {
+  display: flex;
+  align-items: center;
+}
+
+.text-container {
+  padding: 2rem;
+}
