@@ -79,7 +79,9 @@ const HbadaSynergy = () => {
     { name: 'P2 ERGONOMIC', img: '/images/hbadaMedia/products/p2.jpg', status: 'Available' },
   ];
   return (
-    <Box>
+    <Box sx={{
+      marginTop: "120px"
+    }}>
       {/* Hero Banner */}
       <BannerWrapper>
         <motion.div
