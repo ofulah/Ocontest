@@ -2,6 +2,9 @@ import React from 'react';
 import { Box, Typography, Divider, useTheme } from '@mui/material';
 import { styled } from '@mui/system';
 import "./mission.css";
+import image from "../../pages/titles/3.png";
+import image2 from "../../pages/titles/2.png";
+import ImageHeadingText  from '../../pages/ImageHeading';
 
 const MissionSection = () => {
   const theme = useTheme();
@@ -20,22 +23,13 @@ const MissionSection = () => {
         }}
       >
         {/* Title */}
-        <Typography
-          variant="h3"
-          component="h2"
-          sx={{
-            fontWeight: 700,
-            mb: 4,
-            color: theme.palette.text.primary,
-            textAlign: 'left',
-            [theme.breakpoints.down('sm')]: {
-              fontSize: '1.5rem',
-            },
-          }}
-          className='fontSansBoldMission'
-        >
-          Mission
-        </Typography>
+
+          <ImageHeadingText
+            className='mission'
+            imageSrc={image}
+            imageAlt="Description"
+            align="left"
+          />
 
         {/* Mission Statement */}
         <Typography
@@ -51,24 +45,11 @@ const MissionSection = () => {
         </Typography>
 
         <Divider sx={{ my: 6, borderColor: theme.palette.divider }} />
-
-        {/* Second Title */}
-        <Typography
-          variant="h3"
-          component="h2"
-          sx={{
-            fontWeight: 700,
-            mb: 4,
-            color: theme.palette.text.primary,
-            textAlign: 'left',
-            [theme.breakpoints.down('sm')]: {
-              fontSize: '1.5rem',
-            },
-          }}
-          className='fontSansBoldMission'
-        >
-          WHAT WE STAND FOR
-        </Typography>
+          <ImageHeadingText
+            imageSrc={image2}
+            imageAlt="Description"
+            align="left"
+          />
 
         {/* Second Paragraph */}
         <Typography
