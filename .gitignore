@@ -1,4 +1,5 @@
 .env.production
 frontend/.env*
 frontend/build/
+node_modules/
 
