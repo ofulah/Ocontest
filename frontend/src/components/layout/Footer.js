@@ -92,9 +92,6 @@ const Footer = () => {
           {/* Right Section - Social Media */}
           <Stack spacing={1} alignItems={{ xs: 'center', md: 'flex-end' }}>
             <Stack direction="row" spacing={0.5} alignItems="center">
-              <Typography variant="body2" sx={{ fontWeight: 1000, mr: 1, letterSpacing: '0.1em', fontSize: '1rem' }}>
-                Connect With Us:
-              </Typography>
               {Object.entries({
             instagram: 'https://instagram.com',
             youtube: 'https://youtube.com',
