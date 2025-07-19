@@ -14,7 +14,8 @@ def api_root(request, format=None):
             'register': reverse('accounts:register', request=request, format=format),
             'login': reverse('accounts:login', request=request, format=format),
             'logout': reverse('accounts:logout', request=request, format=format),
-            'profile': reverse('accounts:profile', request=request, format=format),
+            'creator_profile': reverse('accounts:creator-profile', request=request, format=format),
+            'brand_profile': reverse('accounts:brand-profile', request=request, format=format),
         },
         'creators': {
             'stats': reverse('accounts:creator-stats', request=request, format=format),

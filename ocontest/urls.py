@@ -26,27 +26,9 @@ from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from . import views
 from .stats import StatsView
 
-# Debug URLs
+# Development URLs
 if settings.DEBUG:
-    import debug_toolbar
-    import sys
-    import platform
-    
-    def debug_view(request):
-        from django.http import JsonResponse
-        return JsonResponse({
-            'python_version': sys.version,
-            'django_version': django.get_version(),
-            'system': platform.system(),
-            'release': platform.release(),
-            'debug': settings.DEBUG,
-            'installed_apps': settings.INSTALLED_APPS,
-        })
-    
-    urlpatterns = [
-        path('__debug__/', include(debug_toolbar.urls)),
-        path('debug/', debug_view, name='debug-info'),
-    ]
+    urlpatterns = []
 else:
     urlpatterns = []
 

@@ -11,15 +11,11 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 import os
-import sys
 from pathlib import Path
 from dotenv import load_dotenv
 
 # Load environment variables from .env file
 load_dotenv()
-
-# Determine if we're running in production
-IS_PRODUCTION = os.getenv('DJANGO_ENV') == 'production'
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -28,19 +24,11 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
-# Debug Toolbar settings
+# Internal IPs for development
 INTERNAL_IPS = [
     '127.0.0.1',
     'localhost',
 ]
-
-# Add this to ensure debug toolbar shows in Docker or different setups
-def show_toolbar(request):
-    return True
-
-DEBUG_TOOLBAR_CONFIG = {
-    'SHOW_TOOLBAR_CALLBACK': 'ocontest.settings.show_toolbar',
-}
 
 
 # Quick-start development settings - unsuitable for production
@@ -50,17 +38,17 @@ DEBUG_TOOLBAR_CONFIG = {
 SECRET_KEY = 'django-insecure-$@@ky$$vrq!zfl4xz@sk-*5dvagi7uu2v1!)(hz*&iqg_vw0&5'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = not IS_PRODUCTION
+DEBUG = True
 
 # Brevo (SMS) settings
 BREVO_API_KEY = os.getenv('BREVO_API_KEY', '')
-BREVO_DEFAULT_SENDER = 'OContest'
+BREVO_DEFAULT_SENDER = os.getenv('BREVO_DEFAULT_SENDER', 'OContest')
 
 # Google OAuth settings
 GOOGLE_CLIENT_ID = os.getenv('GOOGLE_CLIENT_ID', '')
 GOOGLE_CLIENT_SECRET = os.getenv('GOOGLE_CLIENT_SECRET', '')
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1'] if not IS_PRODUCTION else ['ocontest.xyz', 'www.ocontest.xyz', 'api.ocontest.xyz']
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'ocontest.xyz', 'www.ocontest.xyz', 'ocontest.net', 'www.ocontest.net']
 
 # X-Frame-Options settings
 X_FRAME_OPTIONS = 'SAMEORIGIN'
@@ -69,27 +57,77 @@ X_FRAME_OPTIONS = 'SAMEORIGIN'
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '{levelname} {asctime} {module} {message}',
+            'style': '{',
+        },
+        'simple': {
+            'format': '{levelname} {message}',
+            'style': '{',
+        },
+    },
     'handlers': {
         'console': {
+            'level': 'DEBUG',
             'class': 'logging.StreamHandler',
+            'formatter': 'verbose',
         },
     },
     'loggers': {
+        'smtp': {
+            'handlers': ['console'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
         'django': {
+            'handlers': ['console'],
+            'level': 'INFO',
+            'propagate': True,
+        },
+        'django.request': {
+            'handlers': ['console'],
+            'level': 'DEBUG',
+            'propagate': False,
+        },
+        'django.server': {
+            'handlers': ['console'],
+            'level': 'DEBUG',
+            'propagate': False,
+        },
+        'django.template': {
+            'handlers': ['console'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+        'django.db.backends': {
+            'handlers': ['console'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+        '': {
             'handlers': ['console'],
             'level': 'DEBUG',
         },
     },
+    'root': {
+        'handlers': ['console'],
+        'level': 'INFO',
+    },
 }
 
 # CORS settings
+CORS_ALLOW_ALL_ORIGINS = True  # For development only
+CORS_ALLOW_CREDENTIALS = True
+
+# For production, use this instead of CORS_ALLOW_ALL_ORIGINS
 CORS_ALLOWED_ORIGINS = [
     'http://localhost:3000',
     'http://127.0.0.1:3000',
     'https://ocontest.net',
     'https://www.ocontest.net',
 ]
-CORS_ALLOW_CREDENTIALS = True
+
 CORS_ALLOW_METHODS = [
     'DELETE',
     'GET',
@@ -98,6 +136,7 @@ CORS_ALLOW_METHODS = [
     'POST',
     'PUT',
 ]
+
 CORS_ALLOW_HEADERS = [
     'accept',
     'accept-encoding',
@@ -112,22 +151,16 @@ CORS_ALLOW_HEADERS = [
     'jwt-token',
 ]
 
-# Email settings
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'  # For development
-EMAIL_HOST = 'smtp.gmail.com'  # For production
-EMAIL_PORT = 587
-EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'your-email@gmail.com'  # Replace in production
-EMAIL_HOST_PASSWORD = 'your-password'  # Replace in production
-DEFAULT_FROM_EMAIL = 'OContest <noreply@ocontest.com>'
+
 
 # Frontend URLs
-FRONTEND_URL = 'http://localhost:3000' if not IS_PRODUCTION else 'https://ocontest.net'
+FRONTEND_URL = 'https://ocontest.net'
 
 
 # Application definition
 
 INSTALLED_APPS = [
+    'corsheaders',  # Should be first
     'social_django',
     'jazzmin',  # Should be before django.contrib.admin
     'django.contrib.admin',
@@ -139,8 +172,6 @@ INSTALLED_APPS = [
     
     # Third party apps
     'rest_framework',
-    'corsheaders',
-    'debug_toolbar',  # Django Debug Toolbar
     
     # Local apps
     'notifications.apps.NotificationsConfig',
@@ -237,9 +268,9 @@ JAZZMIN_SETTINGS = {
 }
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',  # CORS Middleware should be first
     'ocontest.middleware.RequestLogMiddleware',  # Debug middleware
     'social_django.middleware.SocialAuthExceptionMiddleware',
-    'corsheaders.middleware.CorsMiddleware',  # CORS Middleware should be before CommonMiddleware
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -247,7 +278,6 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'debug_toolbar.middleware.DebugToolbarMiddleware',  # Debug Toolbar Middleware
 ]
 
 ROOT_URLCONF = 'ocontest.urls'
@@ -405,21 +435,62 @@ SOCIAL_AUTH_PIPELINE = (
 SOCIAL_AUTH_JSONFIELD_ENABLED = True
 
 # Email Configuration
+class DebugSMTPBackend:
+    def __init__(self, *args, **kwargs):
+        from django.core.mail.backends.smtp import EmailBackend
+        self.backend = EmailBackend(*args, **kwargs)
+    
+    def open(self):
+        import smtplib
+        import logging
+        logger = logging.getLogger('smtp')
+        
+        old_debug = smtplib.SMTP.debuglevel
+        smtplib.SMTP.debuglevel = 1
+        
+        try:
+            connection = self.backend.open()
+            logger.debug("SMTP Connection established successfully")
+            return connection
+        except Exception as e:
+            logger.error(f"SMTP Connection failed: {str(e)}")
+            raise
+        finally:
+            smtplib.SMTP.debuglevel = old_debug
+    
+    def send_messages(self, email_messages):
+        import logging
+        logger = logging.getLogger('smtp')
+        
+        for message in email_messages:
+            logger.debug(f"Sending email to: {message.to}")
+            logger.debug(f"Subject: {message.subject}")
+            logger.debug(f"From: {message.from_email}")
+        
+        try:
+            result = self.backend.send_messages(email_messages)
+            logger.debug(f"Email sending result: {result} messages sent")
+            return result
+        except Exception as e:
+            logger.error(f"Error sending email: {str(e)}")
+            raise
+
+# Email Configuration - Using Brevo SMTP
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.hostinger.com'
-EMAIL_PORT = 465
-EMAIL_USE_TLS = False
-EMAIL_USE_SSL = True
-EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER', '')
-EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD', '')
-DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL', 'noreply@ocontest.com')
+EMAIL_HOST = 'smtp-relay.brevo.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_USE_SSL = False
+EMAIL_HOST_USER = '8dd00a001@smtp-brevo.com'
+EMAIL_HOST_PASSWORD = 'x3HEZk9TRLtmYjMg'
+DEFAULT_FROM_EMAIL = 'no-reply@ocontest.net'
 
 # Email verification settings
 ACCOUNT_EMAIL_VERIFICATION = 'mandatory'
 ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_AUTHENTICATION_METHOD = 'email'
-ACCOUNT_EMAIL_CONFIRMATION_EXPIRE_DAYS = 3
+ACCOUNT_EMAIL_CONFIRMATION_EXPIRE_DAYS = 1
 ACCOUNT_EMAIL_SUBJECT_PREFIX = 'OContest - '
 
 # Frontend URL for email verification links
-FRONTEND_URL = os.getenv('FRONTEND_URL', 'http://localhost:3000')
+FRONTEND_URL = 'https://ocontest.net'

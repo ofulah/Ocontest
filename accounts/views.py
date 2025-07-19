@@ -131,6 +131,13 @@ class VerifyEmailView(APIView):
             uid = force_str(urlsafe_base64_decode(uidb64))
             user = User.objects.get(pk=uid)
             
+            # Check if user is already verified
+            if user.is_verified and user.is_active:
+                return redirect(
+                    f"{settings.FRONTEND_URL}/verify-email/"
+                    f"?verified=true&already_verified=true"
+                )
+            
             # Check the token is valid
             if default_token_generator.check_token(user, token):
                 # Activate the user and mark as verified
@@ -141,13 +148,22 @@ class VerifyEmailView(APIView):
                 # Log the user in
                 login(request, user)
                 
-                # Redirect to frontend dashboard with success message
-                return redirect(f"{settings.FRONTEND_URL}/dashboard?verified=true")
+                # Redirect to frontend with success message
+                return redirect(
+                    f"{settings.FRONTEND_URL}/verify-email/"
+                    f"?verified=true"
+                )
             else:
-                return redirect(f"{settings.FRONTEND_URL}/verify-email/error?message=invalid")
+                return redirect(
+                    f"{settings.FRONTEND_URL}/verify-email/"
+                    f"?error=invalid_token"
+                )
                 
         except (TypeError, ValueError, OverflowError, User.DoesNotExist):
-            return redirect(f"{settings.FRONTEND_URL}/verify-email/error?message=invalid")
+            return redirect(
+                f"{settings.FRONTEND_URL}/verify-email/"
+                f"?error=invalid_link"
+            )
 
 class LoginView(APIView):
     permission_classes = (permissions.AllowAny,)
@@ -484,18 +500,22 @@ class CreatorEarningsView(APIView):
     permission_classes = (permissions.IsAuthenticated,)
 
     def get(self, request):
-        # Calculate total earnings from winning submissions
+        # Calculate total earnings from winning submissions (status 'won') and contest prize field
         total_earnings = Submission.objects.filter(
             creator=request.user,
-            status='winner'
-        ).aggregate(total=Sum('prize_amount'))['total'] or 0
+            status='won'
+        ).aggregate(total=Sum('contest__prize'))['total'] or 0
 
-        # Calculate pending payouts
-        pending_payouts = Submission.objects.filter(
+        # Calculate pending payouts where prize not yet paid out (if is_paid_out field exists)
+        pending_qs = Submission.objects.filter(
             creator=request.user,
-            status='winner',
-            is_paid_out=False
-        ).aggregate(total=Sum('prize_amount'))['total'] or 0
+            status='won'
+        )
+        # If model has is_paid_out field, filter pending only
+        if hasattr(Submission, 'is_paid_out'):
+            pending_qs = pending_qs.filter(is_paid_out=False)
+        pending_payouts = pending_qs.aggregate(total=Sum('contest__prize'))['total'] or 0
+
 
         return Response({
             'total_earnings': total_earnings,
